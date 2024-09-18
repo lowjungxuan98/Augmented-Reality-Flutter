@@ -101,12 +101,19 @@ class _ObjectGesturesScreenState extends State<ObjectGesturesScreen> {
     bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
     if (didAddAnchor!) {
       anchors.add(newAnchor);
+      // var newNode = ARNode(
+      //   type: NodeType.localGLTF2,
+      //   uri: "assets/Chicken_01/Chicken_01.gltf",
+      //   scale: Vector3(0.2, 0.2, 0.2),
+      //   position: Vector3(0.0, 0.0, 0.0),
+      //   rotation: Vector4(1.0, 1.0, 0.0, 0.0),
+      // );
       var newNode = ARNode(
-        type: NodeType.localGLTF2,
-        uri: "assets/Chicken_01/Chicken_01.gltf",
+        type: NodeType.webGLB,
+        uri: "https://github.com/KhronosGroup/glTF-Sample-Models/blob/main/1.0/Duck/glTF-Binary/Duck.glb",
         scale: Vector3(0.2, 0.2, 0.2),
         position: Vector3(0.0, 0.0, 0.0),
-        rotation: Vector4(1.0, 1.0, 0.0, 0.0),
+        rotation: Vector4(1.0, 0.0, 0.0, 0.0),
       );
       bool? didAddNodeToAnchor = await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor!) {
@@ -130,11 +137,6 @@ class _ObjectGesturesScreenState extends State<ObjectGesturesScreen> {
   onPanEnded(String nodeName, Matrix4 newTransform) {
     debugPrint("Ended panning node $nodeName");
     final pannedNode = nodes.firstWhere((element) => element.name == nodeName);
-
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
     pannedNode.transform = newTransform;
   }
 
@@ -149,11 +151,6 @@ class _ObjectGesturesScreenState extends State<ObjectGesturesScreen> {
   onRotationEnded(String nodeName, Matrix4 newTransform) {
     debugPrint("Ended rotating node $nodeName");
     final rotatedNode = nodes.firstWhere((element) => element.name == nodeName);
-
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
     rotatedNode.transform = newTransform;
   }
 }

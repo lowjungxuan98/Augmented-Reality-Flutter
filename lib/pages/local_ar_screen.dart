@@ -16,33 +16,64 @@ class LocalARScreen extends StatefulWidget {
 }
 
 class _LocalARScreenState extends State<LocalARScreen> {
+  ARObjectManager? arObjectManager;
+  ARNode? node;
+  double rotationAngle = 0.0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(),
-      body: ARView(
-        onARViewCreated: (ARSessionManager arSessionManager, ARObjectManager arObjectManager, ARAnchorManager arAnchorManager, ARLocationManager arLocationManager) async {
-          arSessionManager.onInitialize(
-            showFeaturePoints: false,
-            showPlanes: true,
-            customPlaneTexturePath: "assets/triangle.png",
-            showWorldOrigin: true,
-            handleTaps: true,
-          );
-          arObjectManager.onInitialize();
-
-          var newNode = ARNode(
-            type: NodeType.localGLTF2,
-            uri: "assets/Chicken_01/Chicken_01.gltf",
-            scale: vector.Vector3(0.2, 0.2, 0.2),
-            position: vector.Vector3(0.0, 0.0, 0.0),
-            rotation: vector.Vector4(1.0, 1.0, 0.0, 0.0),
-          );
-          await arObjectManager.addNode(newNode);
+      body: GestureDetector(
+        onPanUpdate: (details) {
+          _onPan(details);
         },
+        child: ARView(
+          onARViewCreated: (ARSessionManager arSessionManager, ARObjectManager arObjectManager, ARAnchorManager arAnchorManager, ARLocationManager arLocationManager) async {
+            arSessionManager.onInitialize(
+              showFeaturePoints: false,
+              showPlanes: true,
+              customPlaneTexturePath: "assets/triangle.png",
+              showWorldOrigin: true,
+              handleTaps: true,
+            );
+            this.arObjectManager = arObjectManager;
+            arObjectManager.onInitialize();
+
+            node = ARNode(
+              type: NodeType.localGLTF2,
+              uri: "assets/Chicken_01/Chicken_01.gltf",
+              scale: vector.Vector3(0.2, 0.2, 0.2),
+              position: vector.Vector3(0.0, 0.0, 0.0),
+              rotation: vector.Vector4(0.0, 1.0, 0.0, rotationAngle),
+            );
+            await arObjectManager.addNode(node!);
+          },
+        ),
       ),
     );
+  }
+
+  void _onPan(DragUpdateDetails details) async {
+    double deltaRotation = details.delta.dx * (3.14159 / 180);
+    setState(() {
+      rotationAngle += deltaRotation;
+    });
+
+    if (node != null && arObjectManager != null) {
+      await arObjectManager!.removeNode(node!);
+
+      node = ARNode(
+        type: NodeType.localGLTF2,
+        uri: "assets/Chicken_01/Chicken_01.gltf",
+        scale: vector.Vector3(0.2, 0.2, 0.2),
+        position: vector.Vector3(0.0, 0.0, 0.0),
+        rotation: vector.Vector4(0.0, 1.0, 0.0, rotationAngle),
+      );
+
+      await arObjectManager!.addNode(node!);
+    }
   }
 
   @override
